@@ -41,7 +41,7 @@ func main() {
 	}
 	limiter := middleware_redis.NewRateLimiter(rlConfig)
 	authorizer := auth.NewAuthorizer()
-	r.Use(middleware.RateLimitMiddleware(limiter, ipRateLimit, authorizer))
+	r.Use(middleware.RateLimitMiddleware(limiter, authorizer))
 
 	r.HandleFunc("/", handler.Hello).Methods("GET")
 

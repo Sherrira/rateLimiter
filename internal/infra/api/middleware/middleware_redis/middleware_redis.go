@@ -48,3 +48,6 @@ func (rl *RedisRateLimiter) IsRateLimited(ctx context.Context, key string, limit
 
 	return false
 }
+func (rl *RedisRateLimiter) GetConfiguration() middleware.RateLimiterConfiguration {
+	return rl.config
+}
