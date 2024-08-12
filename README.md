@@ -64,20 +64,72 @@ Substitua `<service_name>` pelo nome do serviço que você deseja manipular, com
 
 ## Testando a Implementação
 
+Você pode testar este projeto de duas maneiras:
+
+### 1) Teste automatizado
+
+O arquivo `cmd/rateLimiter_test.go` possui um teste automatizado que executa requisições e testa os retornos de acordo com as configurações default parametrizadas em `cmd/.env`. Basta executar o teste com o ambiente docker no ar. Para isso, execute na raiz do projeto o comando:
+
+```sh
+$ make up-build
+```
+
+Em seguida, execute o teste automatizado:
+```sh
+$ go test -v ./cmd/rateLimiter_test.go 
+```
+OBS: Caso você execute o teste novamente, ele trará um erro, justamente validando os valores esperados, confirmando que o middleware bloqueou as requisições do teste. 
+Saída:
+```sh
+$ go test -v ./cmd/rateLimiter_test.go 
+=== RUN   TestRateLimiter
+    rateLimiter_test.go:31: 
+                Error Trace:    ~/rateLimiter/cmd/rateLimiter_test.go:31
+                Error:          Not equal: 
+                                expected: 100
+                                actual  : 0
+                Test:           TestRateLimiter
+    rateLimiter_test.go:32: 
+                Error Trace:    ~/rateLimiter/cmd/rateLimiter_test.go:32
+                Error:          Not equal: 
+                                expected: 1
+                                actual  : 101
+                Test:           TestRateLimiter
+    rateLimiter_test.go:50: 
+                Error Trace:    ~/rateLimiter/cmd/rateLimiter_test.go:50
+                Error:          Not equal: 
+                                expected: 10
+                                actual  : 0
+                Test:           TestRateLimiter
+    rateLimiter_test.go:51: 
+                Error Trace:    ~/rateLimiter/cmd/rateLimiter_test.go:51
+                Error:          Not equal: 
+                                expected: 1
+                                actual  : 11
+                Test:           TestRateLimiter
+--- FAIL: TestRateLimiter (0.09s)
+FAIL
+FAIL    command-line-arguments  0.093s
+FAIL
+```
+Dessa forma, basta esperar 1 minuto (ou o tempo configurado) para que as requisições possam ser aceitas novamente.
+
+### 2) Teste de carga
+
 Para testar a implementação, você pode usar uma ferramenta de teste de carga. Recomendamos clonar o repositório do GitHub chamado [github.com/Sherrira/loadTester](https://github.com/Sherrira/loadTester). Siga a documentação do repositório para mais detalhes, mas para ser rápido, você pode construir a imagem Docker e executar o teste de carga com os seguintes comandos:
 
-### Passo 1: Clonar o Repositório
+#### Passo 1: Clonar o Repositório
 ```sh
 $ git clone https://github.com/Sherrira/loadTester.git
 $ cd loadTester
 ```
 
-### Passo 2: Construir a Imagem Docker
+#### Passo 2: Construir a Imagem Docker
 ```sh
 $ docker build -t loadTester .
 ```
 
-### Passo 3: Executar o Teste de Carga
+#### Passo 3: Executar o Teste de Carga
 ```sh
 $ docker run --rm --network ratelimiter_network loadtester --url=http://app:8080 --requests=500 --concurrency=50 --method=GET --headers="API_KEY:abc123"
 ```
